@@ -1,8 +1,8 @@
 # squid container
 
-FROM ubuntu:20.04 as build
+FROM ubuntu:22.04 as build
 
-ARG SQUID_VERSION=4.14
+ARG SQUID_VERSION=6.10
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -17,7 +17,7 @@ RUN apt-get update \
 
 WORKDIR /work
 # refer https://salsa.debian.org/squid-team/squid/-/blob/master/debian/rules
-RUN curl -sfLO http://www.squid-cache.org/Versions/v4/squid-${SQUID_VERSION}.tar.xz \
+RUN curl -sfLO http://www.squid-cache.org/Versions/v6/squid-${SQUID_VERSION}.tar.xz \
     && tar --strip-components=1 -xf /work/squid-${SQUID_VERSION}.tar.xz \
     && ./configure --without-gnutls --with-openssl --without-systemd \
                    --sysconfdir=/etc/squid --with-swapdir=/var/spool/squid \
@@ -27,9 +27,9 @@ RUN curl -sfLO http://www.squid-cache.org/Versions/v4/squid-${SQUID_VERSION}.tar
     && make install
 
 # stage2: production image
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
-LABEL org.opencontainers.image.source https://github.com/ymmt2005/squid-container
+LABEL org.opencontainers.image.source https://github.com/jakobmoellerdev/squid-container
 
 COPY --from=build /usr/local/squid /usr/local/squid
 COPY --from=build /etc/squid /etc/squid
